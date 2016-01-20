@@ -191,7 +191,7 @@ build/%.h:	src/%.lua $(PACKAGE_DEPS)
 #genclangpaths.lua find the path arguments and formats them into a C file that is included by the cwrapper
 #to configure the paths	
 build/clangpaths.h:	src/dummy.c $(PACKAGE_DEPS) src/genclangpaths.lua
-	$(LUAJIT_DIR)/src/luajit src/genclangpaths.lua $@ $(CLANG) $(CUDA_INCLUDES)
+	$(LUAJIT_DIR)/src/luajit src/genclangpaths.lua $@ $(CUDA_INCLUDES)
 
 build/internalizedfiles.h:	$(PACKAGE_DEPS) src/geninternalizedfiles.lua
 	$(LUAJIT_DIR)/src/luajit src/geninternalizedfiles.lua $@  $(CLANG_RESOURCE_DIRECTORY) "%.h$$" $(CLANG_RESOURCE_DIRECTORY) "%.modulemap$$" lib "%.t$$" 

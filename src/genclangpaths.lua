@@ -1,8 +1,8 @@
 --See Copyright Notice in ../LICENSE.txt
 --usage: genclangpaths.lua output /path/to/clang  [addition args to parse]
 local ffi = require("ffi")
-local outputfile,clang = unpack(arg)
-local handle = assert(io.popen(clang .. " -v src/dummy.c -o build/dummy.o 2>&1", "r"))
+local outputfile,cpp = unpack(arg)
+local handle = assert(io.popen("cpp -xc -v < /dev/null 2>&1", "r"))
 local theline
 for s in handle:lines() do
     if s:find("-cc1") then
@@ -22,15 +22,20 @@ file:write("static const char * clang_paths[] = {\n")
 theline = theline .. " " .. table.concat(arg," ",3) .. " -"
 local flagStr
 local accumStr
+local combined
+local cache = {}
 for a in theline:gmatch("([^ ]+) ?") do -- Tokenize on whitespace
     -- If this is an option, stop recording args and emit what we have
     if a:find("^-") and accumStr then 
         accumStr = accumStr:gsub("\\\\", "/")
                            :match("^%s*(.*%S)%s*$")
                            :match("^\"?([^\"]+)\"?$")
-        if not accumStr:match("lib/clang") then -- do not include clang resource directory, which is handled at runtime
+        combined = flagStr .. accumStr
+        exists = cache[combined]
+        if not exists and not accumStr:match("lib/clang") then -- do not include clang resource directory, which is handled at runtime
             emitStr(flagStr)
             emitStr(accumStr)
+            cache[combined] = true
         end
         accumStr = nil
     end
